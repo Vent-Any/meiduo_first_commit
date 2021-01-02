@@ -12,10 +12,10 @@ class UsernameCountView(View):
         count = User.objects.filter(username=username).count()
         return JsonResponse({'code': 0, 'errmsg': 'OK', 'count': count})
 
-# class MobileCountView(View):
-#     def get(self,request, mobile):
-#         count = User.objects.filter(mobile=mobile).count()
-#         return JsonResponse({'code':0, 'errmsg':'OK', 'count':count})
+class MobileCountView(View):
+    def get(self,request, mobile):
+        count = User.objects.filter(mobile=mobile).count()
+        return JsonResponse({'code': 0, 'errmsg': 'OK', 'count': count})
 
 
 class RegisterView(View):
