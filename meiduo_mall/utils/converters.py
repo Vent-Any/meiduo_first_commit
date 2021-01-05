@@ -11,3 +11,10 @@ class MobileConverter:
     def to_python(self, value):
         print(value)
         return str(value)
+
+class UUIDConverter:
+    regex = '[\w-]+'
+
+    def to_python(self, value):
+        print(value)
+        return  str(value)

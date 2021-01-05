@@ -62,3 +62,9 @@ class RegisterView(View):
         # 返回响应
         return JsonResponse({'code': 0, 'errmsg': 'ok'})
 
+
+class ImageCodeView(View):
+    def get(self, request, uuid):
+        pass
+
+
