@@ -87,7 +87,8 @@ class LoginView(View):
         else:
             request.session.ser_expiry(None)
 
-        return JsonResponse({'code': 400, 'errmsg': "OK"})
-
+        response = JsonResponse({'code': 400, 'errmsg': "OK"})
+        response.set_cookie('username', user.username, max_age=3600*24*14)
+        return response
 
 
