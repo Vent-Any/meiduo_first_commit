@@ -1,6 +1,6 @@
 import re
 
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, logout
 from django.shortcuts import render
 
 # Create your views here.
@@ -89,6 +89,14 @@ class LoginView(View):
 
         response = JsonResponse({'code': 400, 'errmsg': "OK"})
         response.set_cookie('username', user.username, max_age=3600*24*14)
+        return response
+
+class logoutView(View):
+    def delete(self, request):
+        # 清理Session
+        logout(request)
+        response = JsonResponse({'code':0 , 'errmsg':"OK"})
+        response.delete_cookie('username')
         return response
 
 
