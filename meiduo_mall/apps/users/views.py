@@ -85,9 +85,9 @@ class LoginView(View):
         if remembered != True:
             request.session.set_expiry(0)
         else:
-            request.session.ser_expiry(None)
+            request.session.set_expiry(None)
 
-        response = JsonResponse({'code': 400, 'errmsg': "OK"})
+        response = JsonResponse({'code': 0, 'errmsg': "OK"})
         response.set_cookie('username', user.username, max_age=3600*24*14)
         return response
 
@@ -98,5 +98,6 @@ class logoutView(View):
         response = JsonResponse({'code':0 , 'errmsg':"OK"})
         response.delete_cookie('username')
         return response
+
 
 
