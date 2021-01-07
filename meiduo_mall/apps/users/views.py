@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth import authenticate
 from django.shortcuts import render
 
@@ -71,6 +73,11 @@ class LoginView(View):
         remembered = dict.get('remembered')
         if not all([username, password]):
             return JsonResponse({'code': 400, 'errmsg': "缺少参数"})
+        # 多账号登录
+        if re.match('^1[3-9]\d{9}$',username):
+            User.USERNAME_FIELD = 'mobile'
+        else:
+            User.USERNAME_FIELD = 'username'
         # 验证是否能够登录
         user = authenticate(username=username, password=password)
         if user is None:
