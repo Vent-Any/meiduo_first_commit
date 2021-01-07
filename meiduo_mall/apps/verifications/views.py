@@ -66,6 +66,5 @@ class SMSCodeView(View):
         # sdk.sendMessage(tid, mobile, datas)
         p1.setex('send_flag_%s' % mobile, 60, 1)
         p1.execute()
-
         return JsonResponse({'code': 0, 'errmsg': '发送短信成功'})
 

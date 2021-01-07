@@ -1,6 +1,7 @@
 import re
 
 from django.contrib.auth import authenticate, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 
 # Create your views here.
@@ -95,9 +96,10 @@ class logoutView(View):
     def delete(self, request):
         # 清理Session
         logout(request)
-        response = JsonResponse({'code':0 , 'errmsg':"OK"})
+        response = JsonResponse({'code': 0, 'errmsg':"OK"})
         response.delete_cookie('username')
         return response
+
 
 
 
