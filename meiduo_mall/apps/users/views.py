@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate
 from django.shortcuts import render
 
 # Create your views here.
@@ -62,9 +63,24 @@ class RegisterView(View):
         # 返回响应
         return JsonResponse({'code': 0, 'errmsg': 'ok'})
 
+class LoginView(View):
+    def post(self, request):
+        dict =json.loads(request.body.decode())
+        username = dict.get('username')
+        password = dict.get('password')
+        remembered = dict.get('remembered')
+        if not all([username, password]):
+            return JsonResponse({'code': 400, 'errmsg': "缺少参数"})
+        # 验证是否能够登录
+        user = authenticate(username=username, password=password)
+        if user is None:
+            return JsonResponse({'code': 400, 'errmsg': "无法登陆"})
+        if remembered != True:
+            request.session.set_expiry(0)
+        else:
+            request.session.ser_expiry(None)
 
-class ImageCodeView(View):
-    def get(self, request, uuid):
-        pass
+        return JsonResponse({'code': 400, 'errmsg': "OK"})
+
 
 
