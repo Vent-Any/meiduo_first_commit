@@ -27,10 +27,40 @@ class QQUserView(View):
         try:
             qquser = OAuthQQUser.objects.get(openid=openid)
         except:
-            pass
+            return JsonResponse({'code':300, 'access_token': openid})
         else:
             from django.contrib.auth import login
             login(request, qquser.user)
-            response = JsonResponse({'code':0, 'errmsg':"OK"})
+            response = JsonResponse({'code': 0, 'errmsg': "OK"})
             response.set_cookie('username',qquser.user.username, max_age=14*24*3600)
+            return response
 
+    def post(self, request):
+        import json
+        data = json.loads(request.body.decode())
+        mobile = data.get('mobile')
+        password = data.get('password')
+        sms_code = data.get('sms_code')
+        openid = data.get('access_token')
+
+        # 根据手机号判断用户信息
+        from apps.users.models import User
+        try:
+            user = User.objects.get(mobile=mobile)
+        except:
+            user = User.objects.create_user(username = mobile,
+                                            mobile=mobile,
+                                            password=password)
+        else:
+            if not user.check_password(password):
+                return JsonResponse({'code':400 ,'errmsg': "绑定失败"})
+            # 绑定用户信息
+            from apps.oauth.models import OAuthQQUser
+            OAuthQQUser.objects.create(openid=openid,user=user)
+            # 状态保持
+            from django.contrib.auth import login
+            login(request, user)
+            # 设置cookie
+            response = JsonResponse({'code':0 , 'errmsg':'OK'})
+            response.set_cookie('username',user.username ,max_age=14*24*3600)
+            return response
