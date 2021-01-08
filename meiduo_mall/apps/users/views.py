@@ -69,7 +69,6 @@ class RegisterView(View):
         # 返回响应
         return JsonResponse({'code': 0, 'errmsg': 'ok'})
 
-
 class LoginView(View):
     def post(self, request):
         dict = json.loads(request.body.decode())
@@ -86,16 +85,16 @@ class LoginView(View):
         # 验证是否能够登录
         user = authenticate(username=username, password=password)
         if user is None:
-            return JsonResponse({'code': 400, 'errmsg': "无法登陆"})
+            return JsonResponse({'code': 400, 'errmsg': "用户名或者密码错误"})
+        from django.contrib.auth import login
+        login(request, user)
         if remembered != True:
             request.session.set_expiry(0)
         else:
             request.session.set_expiry(None)
-
         response = JsonResponse({'code': 0, 'errmsg': "OK"})
-        response.set_cookie('username', user.username, max_age=3600 * 24 * 14)
+        response.set_cookie('username', username, max_age=14*24*3600)
         return response
-
 
 class logoutView(View):
     def delete(self, request):
@@ -110,15 +109,32 @@ class UserInfoView(LoginRequiredJSONMixin, View):
     """用户中心"""
 
     def get(self, request):
+        print(1111111111111111111111)
         """提供个人信息界面"""
         user = request.user
         # 获取界面需要的数据,进行拼接
-        info_data = {
+        user_info = {
             'username':user.username,
             'mobile': user.mobile,
-            # 'email': user.email,
-            # 'email_active': False
+            'email': user.email,
+            'email_active': False
         }
 
         # 返回响应
-        return JsonResponse({'code': 0,'errmsg': 'ok','info': info_data})
+        return JsonResponse({'code': 0, 'errmsg': 'ok', 'info_data': user_info})
+
+
+class EmailView(View):
+    def put(self, request):
+        # put 请求的内容也在body中
+        # 接受请求
+        data = json.loads(request.body.decode())
+        # 提取参数
+        email =data.get('email')
+        # 更新数据 保存到数据库
+        user = request.user
+        user.email = email
+        user.save()
+        return JsonResponse({'code': 0})
+
+

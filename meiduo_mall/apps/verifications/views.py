@@ -53,7 +53,7 @@ class SMSCodeView(View):
         from celery_tasks.sms.tasks import sms
         sms.delay(mobile, sms_code)
         # 避免频繁发送短信验证码
-        # 通过容联云发送短信
+        # 通过容联云发送短信112
         # import json
         # from ronglian_sms_sdk import SmsSDK
         # accId = '容联云通讯分配的主账号ID'
