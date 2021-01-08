@@ -135,6 +135,8 @@ class EmailView(View):
         user = request.user
         user.email = email
         user.save()
+        from celery_tasks.email.tasks import celery_send_email
+        celery_send_email.delay(email)
         return JsonResponse({'code': 0})
 
 
