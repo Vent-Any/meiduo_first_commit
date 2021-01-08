@@ -29,5 +29,8 @@ class QQUserView(View):
         except:
             pass
         else:
-            pass
+            from django.contrib.auth import login
+            login(request, qquser.user)
+            response = JsonResponse({'code':0, 'errmsg':"OK"})
+            response.set_cookie('username',qquser.user.username, max_age=14*24*3600)
 
