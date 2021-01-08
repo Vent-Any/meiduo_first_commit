@@ -10,14 +10,17 @@ from apps.users.models import User
 from django.http import JsonResponse
 import json
 
+from utils.views import LoginRequiredJSONMixin
+
 
 class UsernameCountView(View):
     def get(self, request, username):
         count = User.objects.filter(username=username).count()
         return JsonResponse({'code': 0, 'errmsg': 'OK', 'count': count})
 
+
 class MobileCountView(View):
-    def get(self,request, mobile):
+    def get(self, request, mobile):
         count = User.objects.filter(mobile=mobile).count()
         return JsonResponse({'code': 0, 'errmsg': 'OK', 'count': count})
 
@@ -34,12 +37,12 @@ class RegisterView(View):
         mobile = data.get('mobile')
         allow = data.get('allow')
         sms_code = data.get('sms_code')
-# 校验参数
+        # 校验参数
         from django import http
         import re
         # 判断参数是否齐全
         if not all([username, password, password2, mobile, allow]):
-            return http.JsonResponse({'code': 400, 'errmsg':'缺少必传参数!'})
+            return http.JsonResponse({'code': 400, 'errmsg': '缺少必传参数!'})
         # 判断用户名是否是5-20个字符
         if not re.match(r'^[a-zA-Z0-9_]{5,20}$', username):
             return http.JsonResponse({'code': 400, 'errmsg': 'username格式有误!'})
@@ -55,7 +58,7 @@ class RegisterView(View):
         # 判断是否勾选用户协议
         if allow != True:
             return http.JsonResponse({'code': 400, 'errmsg': 'allow格式有误!'})
-#   保存参数
+        #   保存参数
         user = User.objects.create_user(username=username,
                                         password=password,
                                         mobile=mobile)
@@ -66,16 +69,17 @@ class RegisterView(View):
         # 返回响应
         return JsonResponse({'code': 0, 'errmsg': 'ok'})
 
+
 class LoginView(View):
     def post(self, request):
-        dict =json.loads(request.body.decode())
+        dict = json.loads(request.body.decode())
         username = dict.get('username')
         password = dict.get('password')
         remembered = dict.get('remembered')
         if not all([username, password]):
             return JsonResponse({'code': 400, 'errmsg': "缺少参数"})
         # 多账号登录
-        if re.match('^1[3-9]\d{9}$',username):
+        if re.match('^1[3-9]\d{9}$', username):
             User.USERNAME_FIELD = 'mobile'
         else:
             User.USERNAME_FIELD = 'username'
@@ -89,17 +93,32 @@ class LoginView(View):
             request.session.set_expiry(None)
 
         response = JsonResponse({'code': 0, 'errmsg': "OK"})
-        response.set_cookie('username', user.username, max_age=3600*24*14)
+        response.set_cookie('username', user.username, max_age=3600 * 24 * 14)
         return response
+
 
 class logoutView(View):
     def delete(self, request):
         # 清理Session
         logout(request)
-        response = JsonResponse({'code': 0, 'errmsg':"OK"})
+        response = JsonResponse({'code': 0, 'errmsg': "OK"})
         response.delete_cookie('username')
         return response
 
 
+class UserInfoView(LoginRequiredJSONMixin, View):
+    """用户中心"""
 
+    def get(self, request):
+        """提供个人信息界面"""
+        user = request.user
+        # 获取界面需要的数据,进行拼接
+        info_data = {
+            'username':user.username,
+            'mobile': user.mobile,
+            # 'email': user.email,
+            # 'email_active': False
+        }
 
+        # 返回响应
+        return JsonResponse({'code': 0,'errmsg': 'ok','info': info_data})
