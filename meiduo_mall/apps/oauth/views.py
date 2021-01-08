@@ -22,3 +22,12 @@ class QQUserView(View):
         access_token = qq.get_access_token(code)
         # 使用token换取openid
         openid = qq.get_open_id(access_token)
+        from apps.oauth.models import OAuthQQUser
+        # 根据openid进行判断
+        try:
+            qquser = OAuthQQUser.objects.get(openid=openid)
+        except:
+            pass
+        else:
+            pass
+
