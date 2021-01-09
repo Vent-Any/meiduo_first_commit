@@ -229,3 +229,31 @@ class CreateAddressView(LoginRequiredJSONMixin, View):
             "email": address.email
         }
         return JsonResponse({'code': 0, 'errmsg': 'ok', 'address': address_dict})
+
+
+class AddressesListView(LoginRequiredJSONMixin, View):
+    def get(self, request):
+        # 1. 必须是登录用户才可以获取地址 LoginRequiredJSONMixin
+        # 2. 根据用户信息查询地址信息
+        addresses = Address.objects.filter(user=request.user,  # user 条件必须有
+                                           is_deleted=False)
+        # 3. 需要对查询结果集进行遍历, 转换为字典列表
+        addresses_list = []
+        for address in addresses:
+            addresses_list.append({
+                'id': address.id,
+                "title": address.title,
+                "receiver": address.receiver,
+                "province": address.province.name,
+                "city": address.city.name,
+                "district": address.district.name,
+                "place": address.place,
+                "mobile": address.mobile,
+                "tel": address.tel,
+                "email": address.email
+            })
+        # 返回响应
+        return JsonResponse({'code': 0,
+                             'errmsg': 'ok',
+                             'addresses': addresses_list,
+                             'default_address_id': request.user.default_address_id})
