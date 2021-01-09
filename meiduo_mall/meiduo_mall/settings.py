@@ -215,3 +215,5 @@ EMAIL_HOST_USER = 'qi_rui_hua@163.com'
 EMAIL_HOST_PASSWORD = '123456abc'
 #收件人看到的发件人
 EMAIL_FROM = '美多商城<qi_rui_hua@163.com>'
+
+EMAIL_VERIFY_URL = 'http://www.meiduo.site:8080/success_verify_email.html'

@@ -69,6 +69,7 @@ class RegisterView(View):
         # 返回响应
         return JsonResponse({'code': 0, 'errmsg': 'ok'})
 
+
 class LoginView(View):
     def post(self, request):
         dict = json.loads(request.body.decode())
@@ -93,8 +94,9 @@ class LoginView(View):
         else:
             request.session.set_expiry(None)
         response = JsonResponse({'code': 0, 'errmsg': "OK"})
-        response.set_cookie('username', username, max_age=14*24*3600)
+        response.set_cookie('username', username, max_age=14 * 24 * 3600)
         return response
+
 
 class logoutView(View):
     def delete(self, request):
@@ -109,12 +111,11 @@ class UserInfoView(LoginRequiredJSONMixin, View):
     """用户中心"""
 
     def get(self, request):
-        print(1111111111111111111111)
         """提供个人信息界面"""
         user = request.user
         # 获取界面需要的数据,进行拼接
         user_info = {
-            'username':user.username,
+            'username': user.username,
             'mobile': user.mobile,
             'email': user.email,
             'email_active': False
@@ -130,13 +131,21 @@ class EmailView(View):
         # 接受请求
         data = json.loads(request.body.decode())
         # 提取参数
-        email =data.get('email')
+        email = data.get('email')
         # 更新数据 保存到数据库
         user = request.user
         user.email = email
         user.save()
+        # token 数据是一个加密的数据,这个数据中 包含用户信息就可以
+        from apps.users.utils import generic_user_id
+        token = generic_user_id(user.id)
+        verify_url = 'http://www.meiduo.site:8080/success_verify_email.html?token = %s' % token
+        # html_message = '<p>尊敬的用户您好！</p>' \
+        #                '<p>感谢您使用美多商城。</p>' \
+        #                '<p>您的邮箱为：%s 。请点击此链接激活您的邮箱：</p>' \
+        #                '<p><a href="%s">%s<a></p>' % (email, verify_url, verify_url)
+        # celery 方式发送 接口实现
         from celery_tasks.email.tasks import celery_send_email
-        celery_send_email.delay(email)
-        return JsonResponse({'code': 0})
-
-
+        celery_send_email.delay(email, verify_url)
+        # 返回响应
+        return JsonResponse({'code': 0, 'errmsg': 'OK'})
