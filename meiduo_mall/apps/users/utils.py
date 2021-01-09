@@ -23,7 +23,7 @@ def check_user_id(token):
     # 2. 解密 捕获异常
     try:
         data = s.loads(token)
-    except BadSignature:
+    except :
         return None
     else:
         # 3. 返回数据

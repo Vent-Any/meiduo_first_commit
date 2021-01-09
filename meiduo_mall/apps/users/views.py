@@ -149,3 +149,41 @@ class EmailView(View):
         celery_send_email.delay(email, verify_url)
         # 返回响应
         return JsonResponse({'code': 0, 'errmsg': 'OK'})
+
+
+#          ------      验证邮箱    --------
+class VerifyEmailView(View):
+    def put(self, request):
+        """
+        1. 接收请求
+        2. 提取数据
+        3. 对数据进行解密操作
+        4. 判断有没有user_id
+        5. 如果没有则说明 token过期了
+        6. 如果有,则查询用户信息11.省市区模型
+        7. 改变用户的邮箱激活状态
+        8. 返回响应
+        :param request:
+        :return:
+        """
+        # 1. 接收请求
+        data = request.GET
+        # 2. 提取数据
+        token = data.get('token')
+        # 3. 对数据进行解密操作
+        from apps.users.utils import check_user_id
+        user_id = check_user_id(token)
+        # 4. 判断有没有user_id
+        if user_id is None:
+            # 5. 如果没有则说明 token过期了
+            return JsonResponse({'code': 400, 'errmsg': '链接时效'})
+        # 6. 如果有,则查询用户信息
+        try:
+            user = User.objects.get(id=user_id)
+        except :
+            return JsonResponse({'code': 400, 'errmsg': '链接时效'})
+        # 7. 改变用户的邮箱激活状态
+        user.email_active = True
+        user.save()
+        # 8. 返回响应
+        return JsonResponse({'code': 0, 'errmsg': 'ok'})
