@@ -6,7 +6,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.views import View
-from apps.users.models import User
+from apps.users.models import User, Address
 from django.http import JsonResponse
 import json
 
@@ -187,3 +187,45 @@ class VerifyEmailView(View):
         user.save()
         # 8. 返回响应
         return JsonResponse({'code': 0, 'errmsg': 'ok'})
+
+
+class CreateAddressView(LoginRequiredJSONMixin, View):
+    def post(self, request):
+        #  LoginRequiredJSONMixin 用来判断用户是否是登陆的状态.
+        # 接受参数
+        data = json.loads(request.body.decode())
+        receiver = data.get('receiver')
+        province_id = data.get('province_id')
+        city_id = data.get('city_id')
+        district_id = data.get('district_id')
+        place = data.get('place')
+        mobile = data.get('mobile')
+        tel = data.get('tel')
+        email = data.get('email')
+        # 数据入库
+        address =Address.objects.create(
+            user=request.user,
+            title=receiver,
+            receiver=receiver,
+            province_id=province_id,
+            city_id=city_id,
+            district_id=district_id,
+            place=place,
+            mobile=mobile,
+            tel=tel,
+            email=email
+        )
+        # 返回响应 (以字典形式)
+        address_dict = {
+            'id': address.id,
+            "title": address.title,
+            "receiver": address.receiver,
+            "province": address.province.name,
+            "city": address.city.name,
+            "district": address.district.name,
+            "place": address.place,
+            "mobile": address.mobile,
+            "tel": address.tel,
+            "email": address.email
+        }
+        return JsonResponse({'code': 0, 'errmsg': 'ok', 'address': address_dict})
