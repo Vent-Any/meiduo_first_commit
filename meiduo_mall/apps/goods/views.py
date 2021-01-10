@@ -6,7 +6,8 @@ from django.shortcuts import render
 from django.views import View
 from collections import OrderedDict
 from apps.goods.models import GoodsChannel, SKU, GoodsCategory
-from utils.goods import get_breadcrumb
+from utils import models
+from utils.goods import get_breadcrumb, get_categories, get_goods_specs
 
 
 class IndexView(View):
@@ -118,3 +119,44 @@ class HotView(View):
             })
 
         return JsonResponse({'code':0, 'errmsg':'OK', 'hot_skus':hot_skus})
+
+from utils.goods import get_breadcrumb,get_categories,get_goods_specs
+class DetailView(View):
+    def get(self,request,sku_id):
+        """
+        1. 获取商品id
+        2. 根据商品id查询商品信息
+        3. 获取分类数据
+        4. 获取面包屑数据
+        5. 获取规格和规格选项数据
+        6. 组织数据,进行HTML模板渲染
+        7. 返回响应
+        :param request:
+        :param sku_id:
+        :return:
+        """
+        # 1. 获取商品id
+        # 2. 根据商品id查询商品信息
+        try:
+            sku=SKU.objects.get(id=sku_id)
+        except SKU.DoesNotExist:
+            return JsonResponse({'code':400,'errmsg':'没有此商品'})
+        # 3. 获取分类数据
+        categories = get_categories()
+        # 4. 获取面包屑数据
+        # sku 有 三级分类属性
+        breadcrumb=get_breadcrumb(sku.category)
+        # 5. 获取规格和规格选项数据
+        # 传递 sku对象
+        specs = get_goods_specs(sku)
+        # 6. 组织数据,进行HTML模板渲染
+        # context 的key 必须按照课件来!!!
+        # 因为模板已经写死了
+        context = {
+        'sku':sku,
+        'categories':categories,
+        'breadcrumb':breadcrumb,
+        'specs':specs
+        }
+        # 7. 返回响应
+        return render(request,'detail.html',context)
