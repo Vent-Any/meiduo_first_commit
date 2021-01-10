@@ -40,6 +40,7 @@ class IndexView(View):
                 categories[group_id]['sub_cats'].append(cat2)
         return categories
 
+
 class ListView(View):
     """商品列表页"""
 
@@ -55,8 +56,8 @@ class ListView(View):
             # 获取三级菜单分类信息:
             category = GoodsCategory.objects.get(id=category_id)
         except Exception as e:
-            return JsonResponse({'code':400,
-                                 'errmsg':'获取mysql数据出错'})
+            return JsonResponse({'code': 400,
+                                 'errmsg': '获取mysql数据出错'})
 
         # 查询面包屑导航(函数在下面写着)
         breadcrumb = get_breadcrumb(category)
@@ -66,8 +67,8 @@ class ListView(View):
             skus = SKU.objects.filter(category=category,
                                       is_launched=True).order_by(ordering)
         except Exception as e:
-            return JsonResponse({'code':400,
-                                 'errmsg':'获取mysql数据出错'})
+            return JsonResponse({'code': 400,
+                                 'errmsg': '获取mysql数据出错'})
 
         paginator = Paginator(skus, page_size)
         # 获取每页商品数据
@@ -75,8 +76,8 @@ class ListView(View):
             page_skus = paginator.page(page)
         except EmptyPage:
             # 如果page_num不正确，默认给用户400
-            return JsonResponse({'code':400,
-                                 'errmsg':'page数据出错'})
+            return JsonResponse({'code': 400,
+                                 'errmsg': 'page数据出错'})
         # 获取列表页总页数
         total_page = paginator.num_pages
 
@@ -85,20 +86,21 @@ class ListView(View):
         # 整理格式:
         for sku in page_skus:
             list.append({
-                'id':sku.id,
-                'default_image_url':sku.default_image.url,
-                'name':sku.name,
-                'price':sku.price
+                'id': sku.id,
+                'default_image_url': sku.default_image.url,
+                'name': sku.name,
+                'price': sku.price
             })
 
         # 把数据变为 json 发送给前端
         return JsonResponse({
-                             'code':0,
-                             'errmsg':'ok',
-                             'breadcrumb': breadcrumb,
-                             'list':list,
-                             'count':total_page
-                            })
+            'code': 0,
+            'errmsg': 'ok',
+            'breadcrumb': breadcrumb,
+            'list': list,
+            'count': total_page
+        })
+
 
 class HotView(View):
     """商品热销排行"""
@@ -112,17 +114,20 @@ class HotView(View):
         hot_skus = []
         for sku in skus:
             hot_skus.append({
-                'id':sku.id,
-                'default_image_url':sku.default_image.url,
-                'name':sku.name,
-                'price':sku.price
+                'id': sku.id,
+                'default_image_url': sku.default_image.url,
+                'name': sku.name,
+                'price': sku.price
             })
 
-        return JsonResponse({'code':0, 'errmsg':'OK', 'hot_skus':hot_skus})
+        return JsonResponse({'code': 0, 'errmsg': 'OK', 'hot_skus': hot_skus})
 
-from utils.goods import get_breadcrumb,get_categories,get_goods_specs
+
+from utils.goods import get_breadcrumb, get_categories, get_goods_specs
+
+
 class DetailView(View):
-    def get(self,request,sku_id):
+    def get(self, request, sku_id):
         """
         1. 获取商品id
         2. 根据商品id查询商品信息
@@ -138,14 +143,14 @@ class DetailView(View):
         # 1. 获取商品id
         # 2. 根据商品id查询商品信息
         try:
-            sku=SKU.objects.get(id=sku_id)
+            sku = SKU.objects.get(id=sku_id)
         except SKU.DoesNotExist:
-            return JsonResponse({'code':400,'errmsg':'没有此商品'})
+            return JsonResponse({'code': 400, 'errmsg': '没有此商品'})
         # 3. 获取分类数据
         categories = get_categories()
         # 4. 获取面包屑数据
         # sku 有 三级分类属性
-        breadcrumb=get_breadcrumb(sku.category)
+        breadcrumb = get_breadcrumb(sku.category)
         # 5. 获取规格和规格选项数据
         # 传递 sku对象
         specs = get_goods_specs(sku)
@@ -153,18 +158,20 @@ class DetailView(View):
         # context 的key 必须按照课件来!!!
         # 因为模板已经写死了
         context = {
-        'sku':sku,
-        'categories':categories,
-        'breadcrumb':breadcrumb,
-        'specs':specs
+            'sku': sku,
+            'categories': categories,
+            'breadcrumb': breadcrumb,
+            'specs': specs
         }
         # 7. 返回响应
-        return render(request,'detail.html',context)
+        return render(request, 'detail.html', context)
 
 
 from apps.goods.models import GoodsVisitCount
+
+
 class CategoryVisitView(View):
-    def post(self,request,category_id):
+    def post(self, request, category_id):
         """
         1. 获取分类id
         2. 根据分类id查询分类数据
@@ -180,25 +187,25 @@ class CategoryVisitView(View):
         # 1. 获取分类id
         # 2. 根据分类id查询分类数据
         try:
-            category=GoodsCategory.objects.get(id=category_id)
+            category = GoodsCategory.objects.get(id=category_id)
         except GoodsCategory.DoesNotExist:
-            return JsonResponse({"code":0,'errmsg':'没有次分类'})
+            return JsonResponse({"code": 0, 'errmsg': '没有次分类'})
         # 3. 获取当天日期
         from datetime import date
-        today=date.today()
+        today = date.today()
         # 4. 我们要查询数据库,是否存在 分类和日期 的记录
         try:
-            gvc=GoodsVisitCount.objects.get(category=category,date=today)
+            gvc = GoodsVisitCount.objects.get(category=category, date=today)
         except GoodsVisitCount.DoesNotExist:
             # 5. 如果不存在 则新增记录
             GoodsVisitCount.objects.create(
-            category=category,
-            date=today,
-            count=1
+                category=category,
+                date=today,
+                count=1
             )
         else:
             # 6. 如果存在,则修改count
             gvc.count += 1
             gvc.save()
             # 7. 返回响应
-            return JsonResponse({"code":0,"errmsg":'ok'})
+            return JsonResponse({"code": 0, "errmsg": 'ok'})

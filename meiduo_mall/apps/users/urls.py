@@ -22,5 +22,7 @@ urlpatterns = [
     path('addresses/create/', views.CreateAddressView.as_view()),
     # 地址查询
     path('addresses/', views.AddressesListView.as_view()),
+    # 用户浏览记录
+    path('browse_histories/', views.UserHistoryView.as_view()),
 
 ]
