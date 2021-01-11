@@ -75,3 +75,48 @@ class CartsView(LoginRequiredJSONMixin, View):
         # 返回响应
         return JsonResponse({'code':0, 'errmsg':'ok', 'cart_skus':carts_sku})
 
+    def put(self,request):
+        # 获取用户
+        user = request.user
+        # 接受信息
+        data =json.loads(request.body.decode())
+        # 提取数据
+        sku_id = data.get('sku_id')
+        count = data.get('count')
+        selected = data.get('selected')
+        # 验证数据
+        try:
+            sku =SKU.objects.get(id =sku_id)
+        except:
+            return JsonResponse({'code':400,'errmsg':'没有此商品'})
+        # 更新数据
+        # 连接redis
+        redis_cli = get_redis_connection('carts')
+        # 更新hash数据
+        redis_cli.hset('carts_%s' % user.id, sku_id, count)
+        # 更新set
+        if selected:
+            # 选中
+            # 添加到 集合中
+            redis_cli.sadd('selected_%s' % user.id, sku_id)
+        else:
+            # 未选中
+            # 应该从集合中 移除
+            """
+            SREM key member [member ...]
+            移除集合 key 中的一个或多个 member 元素，不存在的 member 元素会被忽略。
+            """
+            redis_cli.srem('selected_%s' % user.id, sku_id)
+            # 5. 返回响应 为了确保 前后端数据一致,我们要把后端的数据,再告诉前端
+        cart_sku = {
+            'id': sku_id,
+            'name': sku.name,
+            'count': count,
+            'selected': selected,
+            'price': sku.price,
+            'amount': sku.price * int(count),
+            'default_image_url': sku.default_image.url
+        }
+        return JsonResponse({'code': 0, 'cart_sku':cart_sku, 'errmsg': 'ok'})
+
+
