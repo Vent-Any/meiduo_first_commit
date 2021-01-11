@@ -119,4 +119,26 @@ class CartsView(LoginRequiredJSONMixin, View):
         }
         return JsonResponse({'code': 0, 'cart_sku':cart_sku, 'errmsg': 'ok'})
 
+    def delete(self,request):
+        # 获取用户信息
+        user =request.user
+        # 接受参数
+        data = json.loads(request.body.decode())
+        # 提取参数
+        sku_id =data.get('sku_id')
+        # 验证参数
+        try:
+            SKU.objects.get(id=sku_id)
+        except:
+            return JsonResponse({'code':400,'errmsg':"没有此商品"})
+        # 连接数据库
+        redis_cli =get_redis_connection('carts')
+        # 删除hash数据
+        redis_cli.hdel('carts_%s'%user.id,sku_id)
+        # 删除set数据
+        redis_cli.srem('selected_%s'%user.id,sku_id)
+        # 返回响应
+        return JsonResponse({'code': 0, 'errmsg': 'ok'})
+
+
 
