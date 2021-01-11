@@ -207,5 +207,5 @@ class CategoryVisitView(View):
             # 6. 如果存在,则修改count
             gvc.count += 1
             gvc.save()
-            # 7. 返回响应
-            return JsonResponse({"code": 0, "errmsg": 'ok'})
+        # 7. 返回响应
+        return JsonResponse({"code": 0, "errmsg": 'ok'})
