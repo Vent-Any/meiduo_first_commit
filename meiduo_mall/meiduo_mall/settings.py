@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.goods',
     'apps.contents',
     'django_crontab',
+    'apps.carts',
 
 ]
 
@@ -161,6 +162,13 @@ CACHES = {
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
+    },
+    "carts": {  # session
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://127.0.0.1:6379/4",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            }
     },
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
