@@ -7,5 +7,6 @@ urlpatterns = [
     # 日活用户统计
     path('statistical/day_active/', home.UserActiveAPIView.as_view()),
     path('statistical/day_orders/', home.UserOrderAPIView.as_view()),
+    path('statistical/month_increment/', home.MonthUserAPIView.as_view()),
 
 ]
