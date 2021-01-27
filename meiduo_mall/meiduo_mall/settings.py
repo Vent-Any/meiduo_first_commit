@@ -279,7 +279,9 @@ REST_FRAMEWORK = {
 }
 
 # JWT
+import datetime
 JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER':
-        'apps.meiduo_admin.utils.jwt_response_playload_handler'
+        'apps.meiduo_admin.utils.jwt_response_playload_handler',
+    'JWT_EXPIRATION_DELTA':datetime.timedelta(days=7),
 }
