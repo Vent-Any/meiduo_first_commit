@@ -32,5 +32,6 @@ urlpatterns = [
     path('', include('apps.carts.urls')),
     path('', include('apps.orders.urls')),
     path('', include('apps.payment.urls')),
+    path('meiduo_admin/', include('apps.meiduo_admin.urls')),
 
 ]

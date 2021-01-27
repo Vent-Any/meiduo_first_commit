@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'apps.carts',
     'apps.orders',
     'apps.payment',
+    'apps.meiduo_admin',
+    'rest_framework',
 
 ]
 
@@ -225,6 +227,9 @@ CORS_ORIGIN_WHITELIST = (
     'http://localhost:8080',
     'http://www.meiduo.site:8080',
     'http://www.meiduo.site:8000',
+    'http://127.0.0.1:8090',
+    'http://localhost:8090',
+    'http://www.meiduo.site:8090',
 )
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
 
@@ -255,3 +260,20 @@ ALIPAY_URL = 'https://openapi.alipaydev.com/gateway.do'
 ALIPAY_RETURN_URL = 'http://www.meiduo.site:8080/pay_success.html'
 APP_PRIVATE_KEY_PATH = os.path.join(BASE_DIR, 'apps/payment/key/app_private_key.pem')
 ALIPAY_PUBLIC_KEY_PATH = os.path.join(BASE_DIR, 'apps/payment/key/app_public_key.pem')
+
+REST_FRAMEWORK = {
+# 权限
+'DEFAULT_PERMISSION_CLASSES': (
+        # 先注释掉.因为我们还没登录
+        # 'rest_framework.permissions.IsAuthenticated', # 必须是登录用户
+        ),
+        # 认证
+        # 我们的认证顺序是根据 认证类的书写顺序
+        # 通俗的将就是 先验证Token. 如果没有Token就验证Session
+        # 我们的项目2 就是使用token
+        'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication', #JWT认证
+        'rest_framework.authentication.SessionAuthentication', #session认证
+        'rest_framework.authentication.BasicAuthentication', # 测试认证
+        ),
+}
