@@ -277,3 +277,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication', # 测试认证
         ),
 }
+
+# JWT
+JWT_AUTH = {
+    'JWT_RESPONSE_PAYLOAD_HANDLER':
+        'apps.meiduo_admin.utils.jwt_response_playload_handler'
+}
