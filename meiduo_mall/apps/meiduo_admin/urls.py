@@ -10,8 +10,12 @@ urlpatterns = [
     path('statistical/day_active/', home.UserActiveAPIView.as_view()),
     # 日下单统计
     path('statistical/day_orders/', home.UserOrderAPIView.as_view()),
+    # 日增用户统计
+    path('statistical/day_increment/', home.DayUserAPIView.as_view()),
     # 月增用户统计
     path('statistical/month_increment/', home.MonthUserAPIView.as_view()),
+    # 用户总量统计
+    path('statistical/total_count/', home.TotalUserAPIView.as_view()),
     # 查询用户展示
     path('users/', user.UserListAPIView.as_view()),
     # SKU展示
