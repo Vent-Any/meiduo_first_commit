@@ -13,3 +13,10 @@ class UserActiveAPIView(APIView):
         count = User.objects.filter(last_login__gte = today).count()
         # 返回响应
         return Response({'count':count})
+
+# 下单用户
+class UserOrderAPIView(APIView):
+    def get(self,request):
+        today = date.today()
+        count = User.objects.filter(orderinfo__create_time__gte=today).count()
+        return Response({'count':count})
