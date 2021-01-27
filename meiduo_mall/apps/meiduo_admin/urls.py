@@ -14,6 +14,8 @@ urlpatterns = [
     path('statistical/month_increment/', home.MonthUserAPIView.as_view()),
     # 查询用户展示
     path('users/', user.UserListAPIView.as_view()),
+    # SKU展示
+    path('skus/simple/', image.SimpleSKUListAPIView.as_view()),
 
 ]
 # 添加图片展示路由
