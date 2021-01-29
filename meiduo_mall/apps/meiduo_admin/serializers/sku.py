@@ -1,4 +1,4 @@
-from apps.goods.models import SKU
+from apps.goods.models import SKU, GoodsCategory
 from rest_framework import serializers
 
 
@@ -11,3 +11,10 @@ class SKUModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = SKU
         fields = '__all__'
+
+
+class GoodsCategoryModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = GoodsCategory
+        fields = ['id','name']
