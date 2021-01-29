@@ -64,3 +64,36 @@ class ImageModelView(ModelViewSet):
             'image':new_image.image.url,
             'sku':sku_id
         },status=201)
+
+
+    def update(self, request, *args, **kwargs):
+        sku_id = request.data.get('sku')
+        new_upload_image = request.data.get('image')
+        from qiniu import Auth,put_data
+        # 秘钥
+        access_key = 'q9crPZPROOXrykaH85q_zpEEll0f_LsjXwUnXHRo'
+        secret_key = 'lG_4_tI8bJTR8Zk6z8fGwYp79aQHkJgolvvBL_qm'
+        # 创建鉴权对象
+        q = Auth(access_key, secret_key)
+        # 要上传的空间
+        bucket_name = 'shunyi44'
+        # 上传保存文件名__使用系统
+        key = None
+        # 生成上传Token,可以指定过期时间
+        token = q.upload_token(bucket_name, key, 3600)
+        # 获取上传图片的二进制
+        data = new_upload_image.read()
+        # ret 结果
+        ret, info = put_data(token, key, data=data)
+        # 自动生成的图片名字
+        new_image_url = ret['key']
+        # 数据更新
+        pk = self.kwargs.get('pk')
+        new_image = SKUImage.objects.get(id=pk)
+        new_image.image = new_image_url
+        new_image.save()
+        return Response({
+            'id':new_image.id,
+            'image':new_image.image.url,
+            'sku':sku_id
+        })
