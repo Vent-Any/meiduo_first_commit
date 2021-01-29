@@ -1,4 +1,4 @@
-from apps.goods.models import SKU, GoodsCategory, SPU,SPUSpecification
+from apps.goods.models import SKU, GoodsCategory, SPU, SPUSpecification
 from rest_framework import serializers
 
 
@@ -14,27 +14,30 @@ class SKUModelSerializer(serializers.ModelSerializer):
 
 
 class GoodsCategoryModelSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = GoodsCategory
-        fields = ['id','name']
-
+        fields = ['id', 'name']
 
 
 class SPUSimpleModelSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = SPU
-        fields = ['id','name']
+        fields = ['id', 'name']
 
 
+from apps.goods.models import SpecificationOption
 
 
-class  SPUSpecsModelSerializer(serializers.ModelSerializer):
+class SpecificationOptionModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SpecificationOption
+        fields = ['id', 'value']
 
+
+class SPUSpecsModelSerializer(serializers.ModelSerializer):
     spu = serializers.StringRelatedField()
     spu_id = serializers.IntegerField()
-
+    options = SpecificationOptionModelSerializer(many=True)
     class Meta:
         model = SPUSpecification
-        fields = ['id','name','spu','spu_id']
+        fields = ['id', 'name', 'spu', 'spu_id','options']
