@@ -22,6 +22,8 @@ urlpatterns = [
     path('skus/simple/', image.SimpleSKUListAPIView.as_view()),
     # SKU的三级分类
     path('skus/categories/', sku.GoodCategoryAPIView.as_view()),
+    # SPU简单获取
+    path('goods/simple/', sku.SPUSimpleListView.as_view()),
 
 ]
 # 添加图片展示路由

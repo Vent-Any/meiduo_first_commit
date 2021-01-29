@@ -1,4 +1,4 @@
-from apps.goods.models import SKU, GoodsCategory
+from apps.goods.models import SKU, GoodsCategory, SPU
 from rest_framework import serializers
 
 
@@ -17,4 +17,12 @@ class GoodsCategoryModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GoodsCategory
+        fields = ['id','name']
+
+
+
+class SPUSimpleModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SPU
         fields = ['id','name']
