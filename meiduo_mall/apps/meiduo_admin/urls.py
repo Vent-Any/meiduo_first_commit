@@ -29,7 +29,9 @@ urlpatterns = [
     # 订单信息展示
     path('orders/', orders.OrdersListAPIView.as_view()),
     # 订单详情展示
-    path('orders/<order_id>/', orders.OrderDetailAPIView.as_view()),
+    path('orders/<pk>/', orders.OrderDetailAPIView.as_view()),
+    # # 订单表状态修改
+    path('orders/<pk>/status/', orders.OrderStatusAPIView.as_view()),
 ]
 # 添加图片展示路由
 # 创建router实例
@@ -39,6 +41,6 @@ router.register('skus/images', image.ImageModelViewSet, basename='images')
 # 将路由添加到urlpatterns
 urlpatterns += router.urls
 # ＃＃＃SKU##### 展示SKU路由
-router.register('skus', sku.SKUModelViewSet, basename='images')
+router.register('skus', sku.SKUModelViewSet, basename='skus')
 # 将路由添加到urlpatterns
 urlpatterns += router.urls

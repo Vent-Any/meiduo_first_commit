@@ -44,13 +44,9 @@ class OrderDetailModelSerializer(serializers.ModelSerializer):
         model = OrderInfo
         fields = ['order_id','user','total_count','total_amount','freight','pay_method','status','create_time','skus']
 
-    # def create(self, validated_data):
-    #     skus = validated_data.pop('skus')
-    #     orderinfo = OrderInfo.objects.create(**validated_data)
-    #     sku = skus.pop('sku')
-    #     order_id = self.validated_data.get('order_id')
-    #     for order_goods in skus:
-    #         OrderGoods.objects.create(order_id=order_id,**order_goods)
-    #         for goods in sku:
-    #             SKU.objects.create(**goods)
-    #     return orderinfo
+
+class OrderStatusModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = OrderInfo
+        fields = ['order_id','status']

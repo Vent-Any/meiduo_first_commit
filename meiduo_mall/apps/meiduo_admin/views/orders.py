@@ -1,9 +1,11 @@
-from rest_framework.generics import ListCreateAPIView,RetrieveAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, UpdateAPIView
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from apps.meiduo_admin.serializers.orders import OrdersModelSerializer, OrderDetailModelSerializer
+from apps.meiduo_admin.serializers.orders import OrdersModelSerializer, OrderDetailModelSerializer, \
+    OrderStatusModelSerializer
 from apps.meiduo_admin.utils import PageNum
-from apps.orders.models import OrderInfo,OrderGoods
+from apps.orders.models import OrderInfo, OrderGoods
 
 
 class OrdersListAPIView(ListCreateAPIView):
@@ -23,4 +25,18 @@ class OrdersListAPIView(ListCreateAPIView):
 class OrderDetailAPIView(RetrieveAPIView):
     queryset = OrderInfo.objects.all()
     serializer_class = OrderDetailModelSerializer
-    lookup_field = 'order_id'
+
+
+class OrderStatusAPIView(UpdateAPIView):
+    queryset = OrderInfo.objects.all()
+    serializer_class = OrderStatusModelSerializer
+
+    def update(self, request, *args, **kwargs):
+
+        order = OrderInfo.objects.get(order_id=kwargs.get('pk'))
+        order.status = request.data.get('status')
+        order.save()
+        return Response({
+            'order_id': order.order_id,
+            'status': order.status
+        })
