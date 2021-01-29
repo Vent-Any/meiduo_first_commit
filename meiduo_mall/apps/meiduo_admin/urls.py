@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from apps.meiduo_admin.login import admin_obtain_token
-from apps.meiduo_admin.views import home, user, image
+from apps.meiduo_admin.views import home, user, image, sku
 
 urlpatterns = [
     path('authorizations/', admin_obtain_token),
@@ -26,6 +26,10 @@ urlpatterns = [
 # 创建router实例
 router = DefaultRouter()
 # 注册路由
-router.register('skus/images',image.ImageModelViewSet, basename='images')
+router.register('skus/images', image.ImageModelViewSet, basename='images')
+# 将路由添加到urlpatterns
+urlpatterns += router.urls
+# ＃＃＃SKU##### 展示SKU路由
+router.register('skus', sku.SKUModelViewSet, basename='images')
 # 将路由添加到urlpatterns
 urlpatterns += router.urls
