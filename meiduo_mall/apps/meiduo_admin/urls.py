@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from apps.meiduo_admin.login import admin_obtain_token
-from apps.meiduo_admin.views import home, user, image, sku
+from apps.meiduo_admin.views import home, user, image, sku, orders
 
 urlpatterns = [
     path('authorizations/', admin_obtain_token),
@@ -26,6 +26,10 @@ urlpatterns = [
     path('goods/simple/', sku.SPUSimpleListView.as_view()),
     # 获取spu的规格和选项
     path('goods/<spu_id>/specs/', sku.GoodsSpecsAPIView.as_view()),
+    # 订单信息展示
+    path('orders/', orders.OrdersListAPIView.as_view()),
+    # 订单详情展示
+    path('orders/<order_id>/', orders.OrderDetailAPIView.as_view()),
 ]
 # 添加图片展示路由
 # 创建router实例
