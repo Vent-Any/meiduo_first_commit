@@ -24,7 +24,8 @@ urlpatterns = [
     path('skus/categories/', sku.GoodCategoryAPIView.as_view()),
     # SPU简单获取
     path('goods/simple/', sku.SPUSimpleListView.as_view()),
-
+    # 获取spu的规格和选项
+    path('goods/<spu_id>/specs/', sku.GoodsSpecsAPIView.as_view()),
 ]
 # 添加图片展示路由
 # 创建router实例
