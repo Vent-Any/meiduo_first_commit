@@ -6,6 +6,9 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.views import View
+from django_redis import get_redis_connection
+
+from apps.goods.models import SKU
 from apps.users.models import User, Address
 from django.http import JsonResponse
 import json
@@ -180,7 +183,7 @@ class VerifyEmailView(View):
         # 6. 如果有,则查询用户信息
         try:
             user = User.objects.get(id=user_id)
-        except :
+        except:
             return JsonResponse({'code': 400, 'errmsg': '链接时效'})
         # 7. 改变用户的邮箱激活状态
         user.email_active = True
@@ -203,7 +206,7 @@ class CreateAddressView(LoginRequiredJSONMixin, View):
         tel = data.get('tel')
         email = data.get('email')
         # 数据入库
-        address =Address.objects.create(
+        address = Address.objects.create(
             user=request.user,
             title=receiver,
             receiver=receiver,
@@ -257,3 +260,47 @@ class AddressesListView(LoginRequiredJSONMixin, View):
                              'errmsg': 'ok',
                              'addresses': addresses_list,
                              'default_address_id': request.user.default_address_id})
+
+
+#  用户浏览记录
+class UserHistoryView(LoginRequiredJSONMixin, View):
+    def post(self, request):
+        # 必须是登录用户
+        # 接受请求
+        data = json.loads(request.body.decode())
+        # 提取参数
+        sku_id = data.get('sku_id')
+        # 验证参数
+        try:
+            SKU.objects.get(id=sku_id)
+        except:
+            return JsonResponse({'code': 400, 'errmsg': '没有此商品'})
+        # 链接redis
+        redis_cli = get_redis_connection('history')
+        # 对数据进行去重
+        redis_cli.lrem(request.user.id, 0, sku_id)
+        # 添加数据
+        redis_cli.lpush(request.user.id, sku_id)
+        # 最多保存无条记录
+        redis_cli.ltrim(request.user.id, 0, 4)
+        # 返回响应
+        return JsonResponse({'code': 0, 'errmasg': 'ok'})
+    # 展示浏览记录
+    def get(self, request):
+        """获取用户浏览记录"""
+        # 获取Redis存储的sku_id列表信息
+        redis_conn = get_redis_connection('history')
+        sku_ids = redis_conn.lrange(request.user.id, 0, -1)
+
+        # 根据sku_ids列表数据，查询出商品sku信息
+        skus = []
+        for sku_id in sku_ids:
+            sku = SKU.objects.get(id=sku_id)
+            skus.append({
+                'id': sku.id,
+                'name': sku.name,
+                'default_image_url': sku.default_image.url,
+                'price': sku.price
+            })
+
+        return JsonResponse({'code': 0, 'errmsg': 'OK', 'skus': skus})

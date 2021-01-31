@@ -4,10 +4,14 @@ from django.db import models
 from django.db import models
 from utils.models import BaseModel
 
+
 class GoodsCategory(BaseModel):
     """商品类别"""
     name = models.CharField(max_length=10, verbose_name='名称')
     parent = models.ForeignKey('self', related_name='subs', null=True, blank=True, on_delete=models.CASCADE, verbose_name='父类别')
+
+
+
 
     class Meta:
         db_table = 'tb_goods_category'
@@ -162,4 +166,18 @@ class SKUSpecification(BaseModel):
         verbose_name_plural = verbose_name
 
     def __str__(self):
+
         return '%s: %s - %s' % (self.sku, self.spec.name, self.option.value)
+
+
+class GoodsVisitCount(BaseModel):
+    """统计分类商品访问量模型类"""
+    category = models.ForeignKey(GoodsCategory, on_delete=models.CASCADE, verbose_name='商品分类')
+    count = models.IntegerField(verbose_name='访问量', default=0)
+    date = models.DateField(auto_now_add=True, verbose_name='统计日期')
+
+    class Meta:
+        db_table = 'tb_goods_visit'
+        verbose_name = '统计分类商品访问量'
+        verbose_name_plural = verbose_name
+

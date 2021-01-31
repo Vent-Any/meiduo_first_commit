@@ -43,6 +43,12 @@ INSTALLED_APPS = [
     'apps.areas',
     'apps.goods',
     'apps.contents',
+    'django_crontab',
+    'apps.carts',
+    'apps.orders',
+    'apps.payment',
+    'apps.meiduo_admin',
+    'rest_framework',
 
 ]
 
@@ -62,7 +68,7 @@ ROOT_URLCONF = 'meiduo_mall.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -154,6 +160,20 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     },
+    "history": {  # session
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/3",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    "carts": {  # session
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://127.0.0.1:6379/4",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            }
+    },
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "session"
@@ -207,6 +227,9 @@ CORS_ORIGIN_WHITELIST = (
     'http://localhost:8080',
     'http://www.meiduo.site:8080',
     'http://www.meiduo.site:8000',
+    'http://127.0.0.1:8090',
+    'http://localhost:8090',
+    'http://www.meiduo.site:8090',
 )
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
 
@@ -221,3 +244,44 @@ EMAIL_HOST_PASSWORD = '123456abc'
 EMAIL_FROM = '美多商城<qi_rui_hua@163.com>'
 
 EMAIL_VERIFY_URL = 'http://www.meiduo.site:8080/success_verify_email.html'
+
+DEFAULT_FILE_STORAGE = 'utils.storage.QiniuStorage'
+# CRONJOBS key
+
+CRONJOBS = [
+    # 每1分钟生成一次首页静态文件
+    ('*/1 * * * *', 'apps.contents.crons.generate_static_index_html', '>> ' + os.path.join(BASE_DIR, 'logs/crontab.log'))
+]
+# CRONTAB_COMMAND_PREFIX = 'LANG_ALL=zh_cn.UTF-8'
+
+ALIPAY_APPID = '2021000116697260'
+ALIPAY_DEBUG = True
+ALIPAY_URL = 'https://openapi.alipaydev.com/gateway.do'
+ALIPAY_RETURN_URL = 'http://www.meiduo.site:8080/pay_success.html'
+APP_PRIVATE_KEY_PATH = os.path.join(BASE_DIR, 'apps/payment/key/app_private_key.pem')
+ALIPAY_PUBLIC_KEY_PATH = os.path.join(BASE_DIR, 'apps/payment/key/app_public_key.pem')
+
+REST_FRAMEWORK = {
+# 权限
+'DEFAULT_PERMISSION_CLASSES': (
+        # 先注释掉.因为我们还没登录
+        # 'rest_framework.permissions.IsAuthenticated', # 必须是登录用户
+        ),
+        # 认证
+        # 我们的认证顺序是根据 认证类的书写顺序
+        # 通俗的将就是 先验证Token. 如果没有Token就验证Session
+        # 我们的项目2 就是使用token
+        'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication', #JWT认证
+        'rest_framework.authentication.SessionAuthentication', #session认证
+        'rest_framework.authentication.BasicAuthentication', # 测试认证
+        ),
+}
+
+# JWT
+import datetime
+JWT_AUTH = {
+    'JWT_RESPONSE_PAYLOAD_HANDLER':
+        'apps.meiduo_admin.utils.jwt_response_playload_handler',
+    'JWT_EXPIRATION_DELTA':datetime.timedelta(days=7),
+}
