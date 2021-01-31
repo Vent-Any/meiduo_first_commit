@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from apps.meiduo_admin.login import admin_obtain_token
-from apps.meiduo_admin.views import home, user, image, sku, orders,permission,group
+from apps.meiduo_admin.views import home, user, image, sku, orders,permission,group,admin
 
 urlpatterns = [
     path('authorizations/', admin_obtain_token),
@@ -36,6 +36,8 @@ urlpatterns = [
     path('permission/content_types/', permission.ContenTypeListAPIView.as_view()),
     # 获取组权限
     path('permission/simple/', group.PermissionSimpleModelView.as_view()),
+    # 获取 分组表数据
+    path('permission/groups/simple/', admin.GroupListAPIView.as_view()),
 ]
 # 添加图片展示路由
 # 创建router实例
@@ -58,5 +60,10 @@ urlpatterns += router.urls
 
 # ##### Group##### 组管理
 router.register('permission/groups', group.GroupModelView, basename='groups')
+# 将路由添加到urlpatterns
+urlpatterns += router.urls
+
+# ##### Admin##### 管理员管理
+router.register('permission/admins', admin.AdminModelViewSet, basename='admins')
 # 将路由添加到urlpatterns
 urlpatterns += router.urls
