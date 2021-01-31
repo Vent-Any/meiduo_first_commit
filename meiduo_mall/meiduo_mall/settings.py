@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/2.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
-
+import datetime
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -261,27 +261,46 @@ ALIPAY_RETURN_URL = 'http://www.meiduo.site:8080/pay_success.html'
 APP_PRIVATE_KEY_PATH = os.path.join(BASE_DIR, 'apps/payment/key/app_private_key.pem')
 ALIPAY_PUBLIC_KEY_PATH = os.path.join(BASE_DIR, 'apps/payment/key/app_public_key.pem')
 
+# Haystack
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+        'URL': 'http://192.168.108.155:9200/',  # Elasticsearch服务器ip地址，端口号固定为9200
+        'INDEX_NAME': 'meiduo_mall',  # Elasticsearch建立的索引库的名称
+    },
+}
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 5
+
+####################JWT########################
 REST_FRAMEWORK = {
-# 权限
-'DEFAULT_PERMISSION_CLASSES': (
-        # 先注释掉.因为我们还没登录
-        # 'rest_framework.permissions.IsAuthenticated', # 必须是登录用户
-        ),
-        # 认证
-        # 我们的认证顺序是根据 认证类的书写顺序
-        # 通俗的将就是 先验证Token. 如果没有Token就验证Session
-        # 我们的项目2 就是使用token
-        'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication', #JWT认证
-        'rest_framework.authentication.SessionAuthentication', #session认证
-        'rest_framework.authentication.BasicAuthentication', # 测试认证
-        ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        # 'rest_framework.permissions.IsAuthenticated',  # 必须是登录用户
+        # 'rest_framework.permissions.DjangoModelPermissions'  # 权限设置
+    ),
+    # 认证
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',  # JWT验证
+        'rest_framework.authentication.SessionAuthentication',  # session认证
+        'rest_framework.authentication.BasicAuthentication',  # 测试认证
+    ),
 }
 
-# JWT
-import datetime
+############################################################################################
 JWT_AUTH = {
+    'JWT_ENCODE_HANDLER':
+        'rest_framework_jwt.utils.jwt_encode_handler',
+
+    'JWT_DECODE_HANDLER':
+        'rest_framework_jwt.utils.jwt_decode_handler',
+
+    'JWT_PAYLOAD_HANDLER':
+        'rest_framework_jwt.utils.jwt_payload_handler',
+
+    'JWT_PAYLOAD_GET_USER_ID_HANDLER':
+        'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
+
     'JWT_RESPONSE_PAYLOAD_HANDLER':
         'apps.meiduo_admin.utils.jwt_response_playload_handler',
-    'JWT_EXPIRATION_DELTA':datetime.timedelta(days=7),
+
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),  # 设置token到期时间
 }
