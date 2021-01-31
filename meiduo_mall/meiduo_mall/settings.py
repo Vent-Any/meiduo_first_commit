@@ -94,7 +94,7 @@ DATABASES = {
         'PORT':3306,
         'USER':'root',
         'PASSWORD':'mysql',
-        'NAME': 'meiduo_mall_45',
+        'NAME': 'meiduo_mail_44',
     }
 }
 

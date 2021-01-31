@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from apps.meiduo_admin.login import admin_obtain_token
-from apps.meiduo_admin.views import home, user, image, sku, orders
+from apps.meiduo_admin.views import home, user, image, sku, orders,permission
 
 urlpatterns = [
     path('authorizations/', admin_obtain_token),
@@ -32,6 +32,8 @@ urlpatterns = [
     path('orders/<pk>/', orders.OrderDetailAPIView.as_view()),
     # # 订单表状态修改
     path('orders/<pk>/status/', orders.OrderStatusAPIView.as_view()),
+    # 权限管理
+    path('permission/content_types/', permission.ContenTypeListAPIView.as_view()),
 ]
 # 添加图片展示路由
 # 创建router实例
@@ -40,7 +42,14 @@ router = DefaultRouter()
 router.register('skus/images', image.ImageModelViewSet, basename='images')
 # 将路由添加到urlpatterns
 urlpatterns += router.urls
+
 # ＃＃＃SKU##### 展示SKU路由
 router.register('skus', sku.SKUModelViewSet, basename='skus')
+# 将路由添加到urlpatterns
+urlpatterns += router.urls
+
+
+# ##### Permission##### 权限管理
+router.register('permission/perms', permission.PermissionModelViewSet, basename='perms')
 # 将路由添加到urlpatterns
 urlpatterns += router.urls
